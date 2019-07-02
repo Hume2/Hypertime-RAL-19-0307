@@ -73,7 +73,9 @@ float CTimeMean::predict(uint32_t time)
 int CTimeMean::save(const char* name,bool lossy)
 {
 	FILE* file = fopen(name,"w");
-	save(file);
+	double array[10000];
+	int len = exportToArray(array,10000);
+	fwrite(array,sizeof(double),len,file);
 	fclose(file);
 	return 0;
 }
@@ -81,26 +83,11 @@ int CTimeMean::save(const char* name,bool lossy)
 int CTimeMean::load(const char* name)
 {
 	FILE* file = fopen(name,"r");
-	load(file);
-	fclose(file);
-	return 0;
-}
-
-
-int CTimeMean::save(FILE* file,bool lossy)
-{
-	double array[10000];
-	int len = exportToArray(array,10000);
-	fwrite(array,sizeof(double),len,file);
-	return 0;
-}
-
-int CTimeMean::load(FILE* file)
-{
 	double *array = (double*)malloc(MAX_TEMPORAL_MODEL_SIZE*sizeof(double));
 	int len = fread(array,sizeof(double),MAX_TEMPORAL_MODEL_SIZE,file);
 	importFromArray(array,len);
 	free(array);
+	fclose(file);
 	return 0;
 }
 

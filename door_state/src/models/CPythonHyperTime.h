@@ -45,8 +45,6 @@ class CPythonHyperTime: public CTemporal
 		int importFromArray(double* array,int len);
 		void print(bool verbose=true);
 
-		int save(FILE* file,bool lossy = false);
-		int load(FILE* file);
 		int save(const char* name,bool lossy = false);
 		int load(const char* name);
 		

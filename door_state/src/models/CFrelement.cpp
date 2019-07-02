@@ -219,23 +219,3 @@ int CFrelement::load(const char* name)
 	fclose(file);
 	return 0;
 }
-
-
-int CFrelement::save(FILE* file,bool lossy)
-{
-	int frk = numElements;
-	fwrite(&frk,sizeof(uint32_t),1,file);
-	fwrite(&storedGain,sizeof(float),1,file);
-	fwrite(storedFrelements,sizeof(SFrelement),numElements,file);
-	return 0;
-}
-
-int CFrelement::load(FILE* file)
-{
-	int frk = numElements;
-	fwrite(&frk,sizeof(uint32_t),1,file);
-	fwrite(&storedGain,sizeof(float),1,file);
-	fwrite(storedFrelements,sizeof(SFrelement),numElements,file);
-	return 0;
-}
-

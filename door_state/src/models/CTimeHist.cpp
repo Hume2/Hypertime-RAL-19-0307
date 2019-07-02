@@ -90,7 +90,10 @@ float CTimeHist::predict(uint32_t time)
 int CTimeHist::save(const char* name,bool lossy)
 {
 	FILE* file = fopen(name,"w");
-	save(file);
+	double *array = (double*)malloc(MAX_TEMPORAL_MODEL_SIZE*sizeof(double));
+	int len = exportToArray(array,MAX_TEMPORAL_MODEL_SIZE);
+	fwrite(array,sizeof(double),len,file);
+	free(array);
 	fclose(file);
 	return 0;
 }
@@ -98,28 +101,12 @@ int CTimeHist::save(const char* name,bool lossy)
 int CTimeHist::load(const char* name)
 {
 	FILE* file = fopen(name,"r");
-	load(file);
-	fclose(file);
-	return 0;
-}
-
-
-int CTimeHist::save(FILE* file,bool lossy)
-{
-	double *array = (double*)malloc(MAX_TEMPORAL_MODEL_SIZE*sizeof(double));
-	int len = exportToArray(array,MAX_TEMPORAL_MODEL_SIZE);
-	fwrite(array,sizeof(double),len,file);
-	free(array);
-	return -1;
-}
-
-int CTimeHist::load(FILE* file)
-{
 	double *array = (double*)malloc(MAX_TEMPORAL_MODEL_SIZE*sizeof(double));
 	int len = fread(array,sizeof(double),MAX_TEMPORAL_MODEL_SIZE,file);
 	importFromArray(array,len);
 	free(array);
-	return len;
+	fclose(file);
+	return 0;
 }
 
 int CTimeHist::exportToArray(double* array,int maxLen)

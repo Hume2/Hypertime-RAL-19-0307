@@ -250,7 +250,9 @@ int CPerGaM::exportToArray(double* array,int maxLen)
 int CPerGaM::save(const char* name,bool lossy)
 {
 	FILE* file = fopen(name,"w");
-	save(file);
+	double *array = (double*)malloc(MAX_TEMPORAL_MODEL_SIZE*sizeof(double));
+	int len = exportToArray(array,MAX_TEMPORAL_MODEL_SIZE);
+	fwrite(array,sizeof(double),len,file);
 	fclose(file);
 	return 0;
 }
@@ -258,24 +260,10 @@ int CPerGaM::save(const char* name,bool lossy)
 int CPerGaM::load(const char* name)
 {
 	FILE* file = fopen(name,"r");
-	load(file);
-	fclose(file);
-	return 0;
-}
-
-int CPerGaM::save(FILE* file,bool lossy)
-{
-	double *array = (double*)malloc(MAX_TEMPORAL_MODEL_SIZE*sizeof(double));
-	int len = exportToArray(array,MAX_TEMPORAL_MODEL_SIZE);
-	fwrite(array,sizeof(double),len,file);
-	return 0;
-}
-
-int CPerGaM::load(FILE* file)
-{
 	double *array = (double*)malloc(MAX_TEMPORAL_MODEL_SIZE*sizeof(double));
 	int len = fread(array,sizeof(double),MAX_TEMPORAL_MODEL_SIZE,file);
 	importFromArray(array,len);
 	free(array);
+	fclose(file);
 	return 0;
 }
