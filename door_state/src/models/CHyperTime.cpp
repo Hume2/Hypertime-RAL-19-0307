@@ -7,8 +7,6 @@ CHyperTime::CHyperTime(int id)
 	type = TT_HYPER;
 	delete modelPositive;
 	delete modelNegative;
-//	modelPositive.release();
-//	modelNegative.release();
 	spaceDimension = 1;
 	timeDimension = 0;
 	maxTimeDimension = 10;
@@ -17,7 +15,7 @@ CHyperTime::CHyperTime(int id)
 	corrective = 1.0;
 }
 
-void CHyperTime::init(int iMaxPeriod,int elements,int numClasses)
+void CHyperTime::init(int iMaxPeriod, int elements, int numClasses)
 {
 	maxPeriod = iMaxPeriod;
 	numElements = elements;
@@ -28,7 +26,7 @@ CHyperTime::~CHyperTime()
 }
 
 // adds new state observations at given times
-int CHyperTime::add(uint32_t time,float state)
+int CHyperTime::add(uint32_t time, float state)
 {
 	sampleArray[numSamples].t = time;
 	sampleArray[numSamples].v = state;
@@ -62,8 +60,8 @@ void CHyperTime::update(int modelOrder,unsigned int* times,float* signal,int len
 	reinit_models_if_null();
 
 	/*separate positives and negative examples*/
-	Mat samplesPositive(positives,spaceDimension+timeDimension,CV_32FC1);
-	Mat samplesNegative(negatives,spaceDimension+timeDimension,CV_32FC1);
+	Mat samplesPositive(positives, spaceDimension + timeDimension, CV_32FC1);
+	Mat samplesNegative(negatives, spaceDimension + timeDimension, CV_32FC1);
 	
 	float vDummy = 0.5;
 	long int tDummy = 0.5;
@@ -109,7 +107,7 @@ void CHyperTime::update(int modelOrder,unsigned int* times,float* signal,int len
 		corrective = corrective*positives/integral;
 		
 		/*calculate evaluation error*/
-		for (int i = 0;i<numEvaluation;i++)
+		for (int i = 0; i < numEvaluation; i++)
 		{
 			err = estimate(sampleArray[i].t)-sampleArray[i].v;
 			sumErr+=err*err;
@@ -156,27 +154,27 @@ void CHyperTime::update(int modelOrder,unsigned int* times,float* signal,int len
 		/*hypertime expansion*/
 		if (stop == false && expand == true){
 			printf("Adding period %i \n",period);
-			Mat hypertimePositive(positives,2,CV_32FC1);
-			Mat hypertimeNegative(negatives,2,CV_32FC1);
+			Mat hypertimePositive(positives, 2, CV_32FC1);
+			Mat hypertimeNegative(negatives, 2, CV_32FC1);
 			positives = negatives = 0;
 			for (int i = 0;i<numTraining;i++)
 			{
 				vDummy = sampleArray[i].v;
 				tDummy = sampleArray[i].t;
 				if (vDummy > 0.5){
-					hypertimePositive.at<float>(positives,0)=cos((float)tDummy/period*2*M_PI);
-					hypertimePositive.at<float>(positives,1)=sin((float)tDummy/period*2*M_PI);
+					hypertimePositive.at<float>(positives, 0) = cos((float)tDummy/period*2*M_PI);
+					hypertimePositive.at<float>(positives, 1) = sin((float)tDummy/period*2*M_PI);
 					positives++;
-				}else{
-					hypertimeNegative.at<float>(negatives,0)=cos((float)tDummy/period*2*M_PI);
-					hypertimeNegative.at<float>(negatives,1)=sin((float)tDummy/period*2*M_PI);
+				} else {
+					hypertimeNegative.at<float>(negatives, 0) = cos((float)tDummy/period*2*M_PI);
+					hypertimeNegative.at<float>(negatives, 1) = sin((float)tDummy/period*2*M_PI);
 					negatives++;
 				}
 			}
-			hconcat(samplesPositive, hypertimePositive,samplesPositive);
-			hconcat(samplesNegative, hypertimeNegative,samplesNegative);
+			hconcat(samplesPositive, hypertimePositive, samplesPositive);
+			hconcat(samplesNegative, hypertimeNegative, samplesNegative);
 			periods.push_back(period);
-			timeDimension+=2;
+			timeDimension += 2;
 		}
 		if (order <  maxOrder) stop = false;
 	} while (!stop);
@@ -186,32 +184,24 @@ float CHyperTime::estimate(uint32_t t)
 {
 	/*is the model valid?*/
 	if (modelNegative->isTrained() && modelPositive->isTrained()){
-		Mat sample(1,spaceDimension+timeDimension,CV_32FC1);
-		sample.at<float>(0,0)=1;
+		Mat sample(1, spaceDimension + timeDimension, CV_32FC1);
+		sample.at<float>(0,0) = 1;
 
 		/*augment data sample with hypertime dimensions)*/
-		for (int i = 0;i<timeDimension/2;i++){
-			sample.at<float>(0,spaceDimension+2*i+0)=cos((float)t/periods[i]*2*M_PI);
-			sample.at<float>(0,spaceDimension+2*i+1)=sin((float)t/periods[i]*2*M_PI);
+		for (int i = 0; i < timeDimension/2; i++){
+			sample.at<float>(0, spaceDimension + 2*i + 0) = cos((float)t/periods[i]*2*M_PI);
+			sample.at<float>(0, spaceDimension + 2*i + 1) = sin((float)t/periods[i]*2*M_PI);
 		}
-		Mat probs(1,2,CV_32FC1);
+		Mat probs(1, 2, CV_32FC1);
 		Vec2f a = modelPositive->predict2(sample, probs);
 
-		sample.at<float>(0,0)=0;
+		sample.at<float>(0,0) = 0;
 		Vec2f b = modelNegative->predict2(sample, probs);
 
-		/*cout << sample << endl;
-		cout << a << endl;
-		cout << b << endl;*/
-
 		double d = ((positives*exp(a(0))+negatives*exp(b(0))));
-		//d = ((exp(a(0))+exp(b(0))));
-		//if(d > 0) return exp(a(0))/d;
-		if(d > 0) return corrective*positives*exp(a(0))/d;
-//		double d = ((exp(a(0))+exp(b(0))));
-//		if(d > 0) return exp(a(0))/d;
-	}else{
-		printf("Model estimation skipped\n");
+		if (d > 0) return corrective*positives*exp(a(0))/d;
+	} else {
+		std::cout << "Model estimation skipped" << std::endl;
 	}
 	/*any data available?*/
 	if (negatives+positives > 0) return (float)positives/(positives+negatives);
@@ -225,7 +215,7 @@ void CHyperTime::print(bool all)
 	std::cout << meansPositive << std::endl;
 	std::cout << meansNegative << std::endl;
 	//std::cout << periods << std::endl;	
-	printf("%i %i\n",order,timeDimension);	
+	std::cout << order <<" "<< timeDimension << std::endl;
 }
 
 float CHyperTime::predict(uint32_t time)

@@ -35,20 +35,20 @@ class CHyperTime: public CTemporal
 
 		//adds a serie of measurements to the data
 		int add(uint32_t time,float state);
-		void init(int iMaxPeriod,int elements,int numClasses);
+		void init(int iMaxPeriod, int elements, int numClasses);
 
 		//estimates the probability for the given times 
 		float estimate(uint32_t time);
 		float predict(uint32_t time);
 
-		void update(int maxOrder,unsigned int* times = NULL,float* signal = NULL,int length = 0);
+		void update(int maxOrder, unsigned int* times = NULL, float* signal = NULL, int length = 0);
 		void print(bool verbose=true);
 
-		int exportToArray(double* array,int maxLen);
-		int importFromArray(double* array,int len);
+		int exportToArray(double* array, int maxLen);
+		int importFromArray(double* array, int len);
 		int save(FILE* file,bool lossy = false);
 		int load(FILE* file);
-		int save(const  char* name,bool lossy = false);
+		int save(const  char* name, bool lossy = false);
 		int load(const  char* name);
 		
 		SHyperTimeSample sampleArray[1000000];
