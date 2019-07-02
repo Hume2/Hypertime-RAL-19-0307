@@ -36,24 +36,30 @@ int CHyperTime::add(uint32_t time,float state)
 	return 0; 
 }
 
+void CHyperTime::reinit_models_if_null() {
+	if (modelPositive.empty()) {
+		modelPositive = EM::create();
+		modelPositive->setClustersNumber(order);
+		modelPositive->setCovarianceMatrixType(covarianceType);
+	}
+	if (modelNegative.empty()) {
+		modelNegative = EM::create();
+		modelNegative->setClustersNumber(order);
+		modelNegative->setCovarianceMatrixType(covarianceType);
+	}
+}
+
 /*required in incremental version*/
 void CHyperTime::update(int modelOrder,unsigned int* times,float* signal,int length)
 {
 	int numTraining = numSamples;
 	int numEvaluation = 0;
-	if (order != modelOrder){
-		delete modelPositive;
-		delete modelNegative;
-//		modelPositive.release();
-//	        modelNegative.release();
+	if (order != modelOrder) {
+		modelPositive.release();
+		modelNegative.release();
 		order = modelOrder;
 	}
-	if (modelPositive == NULL) modelPositive = EM::create();
-	if (modelNegative == NULL) modelNegative = EM::create();
-	modelPositive->setClustersNumber(order);
-	modelNegative->setClustersNumber(order);
-	modelPositive->setCovarianceMatrixType(covarianceType);
-	modelNegative->setCovarianceMatrixType(covarianceType);
+	reinit_models_if_null();
 
 	/*separate positives and negative examples*/
 	Mat samplesPositive(positives,spaceDimension+timeDimension,CV_32FC1);
@@ -61,43 +67,45 @@ void CHyperTime::update(int modelOrder,unsigned int* times,float* signal,int len
 	
 	float vDummy = 0.5;
 	long int tDummy = 0.5;
-	for (int i = 0;i<numTraining;i++){
+	for (int i = 0; i < numTraining; i++){
 		vDummy = sampleArray[i].v;
-		if (vDummy > 0.5){
+		if (vDummy > 0.5) {
 			samplesPositive.push_back(vDummy);
 			positives++;
-		} else{
+		} else {
 			samplesNegative.push_back(vDummy);
 			negatives++;
 		}
 	}
+
 	periods.clear();
 	bool stop = false;
 	do { 
 		/*find the gaussian mixtures*/
-		if (positives <= order || negatives <= order)break;
+		if (positives <= order || negatives <= order) break;
 		modelPositive->trainEM(samplesPositive);
 		modelNegative->trainEM(samplesNegative);
-		if (modelNegative->isTrained()) printf(" Positive model\n");
-		if (modelPositive->isTrained()) printf(" Negative model\n");
-		printf("Model trained with %i clusters, %i dimensions, %i positives and %i negatives\n",order,timeDimension,positives,negatives);
+		if (modelNegative->isTrained()) std::cout << " Positive model is trained" << std::endl;
+		if (modelPositive->isTrained()) std::cout << " Negative model is trained" << std::endl;
+		std::cout << "Model trained with "<< order <<" clusters, "<< timeDimension <<"dimensions, "<< positives <<" positives and "<< negatives <<" negatives" << std::endl;
 		print();
+
 		/*analyse model error for periodicities*/
 		CFrelement fremen(0);
 		float err = 0;
 		float sumErr = 0;
-		fremen.init(maxPeriod,maxTimeDimension,1);
+		fremen.init(maxPeriod, maxTimeDimension, 1);
 
 		/*calculate model error across time*/
-		for (int i = 0;i<numTraining;i++)
+		for (int i = 0; i < numTraining; i++)
 		{
-			fremen.add(sampleArray[i].t,estimate(sampleArray[i].t)-sampleArray[i].v);
+			fremen.add(sampleArray[i].t, estimate(sampleArray[i].t)-sampleArray[i].v);
 		}
 
 		/*determine model weights*/
 		float integral = 0;
 		numEvaluation = numSamples;
-		for (int i = 0;i<numEvaluation;i++) integral+=estimate(sampleArray[i].t);
+		for (int i = 0; i < numEvaluation; i++) integral += estimate(sampleArray[i].t);
 		corrective = corrective*positives/integral;
 		
 		/*calculate evaluation error*/
@@ -114,39 +122,31 @@ void CHyperTime::update(int modelOrder,unsigned int* times,float* signal,int len
 		int period = fremen.predictFrelements[0].period;
 		bool expand = true;
 		fremen.print(true);
-		printf("Model error with %i time dimensions and %i clusters is %.3f\n",timeDimension,order,sumErr);
+		std::cout << "Model error with "<< timeDimension <<" time dimensions and "<< order <<" clusters is "<< sumErr << std::endl;
 
 		/*if the period already exists, then skip it*/
-		for (int d = 0;d<timeDimension/2;d++)
+		for (int d = 0; d < timeDimension/2; d++)
 		{
 			if (period == periods[d]) period = fremen.predictFrelements[d+1].period;
 		}
 		errors[timeDimension/2] = sumErr;
-		//cout << samplesPositive.rowRange(0, 1) << endl;
 
 		/*error has increased: cleanup and stop*/
-		if (timeDimension > 1 && errors[timeDimension/2-1] <  sumErr)
+		if (timeDimension > 1 && errors[timeDimension/2-1] < sumErr)
 		{
-			printf("Error increased from %.3f to %.3f\n",errors[timeDimension/2-1],errors[timeDimension/2]);
+			printf("Error increased from %.3f to %.3f\n", errors[timeDimension/2-1], errors[timeDimension/2]);
 			timeDimension-=2;
 			load("model");
 			samplesPositive = samplesPositive.colRange(0, samplesPositive.cols-2);
 			samplesNegative = samplesNegative.colRange(0, samplesNegative.cols-2);
 			if (order < maxOrder){
-				delete modelPositive;
-				delete modelNegative;
-//				modelPositive->release();
-//				modelNegative->release();
-				if (modelPositive == NULL) modelPositive = EM::create();
-				if (modelNegative == NULL) modelNegative = EM::create();
-				modelPositive->setClustersNumber(order);
-				modelNegative->setClustersNumber(order);
-				modelPositive->setCovarianceMatrixType(covarianceType);
-				modelNegative->setCovarianceMatrixType(covarianceType);
+				modelPositive.release();
+				modelNegative.release();
 			}
-			printf("Reducing hypertime dimension to %i: ",timeDimension);
-			for (int i = 0;i<timeDimension/2;i++) printf(" %i,",periods[i]);
-			printf("\n");
+			reinit_models_if_null();
+			std::cout << "Reducing hypertime dimension to "<< timeDimension <<": ";
+			for (int i = 0; i < timeDimension/2; i++) std::cout << " " << periods[i];
+			std::cout << std::endl;
 			stop = true;
 		}else{
 			save("model");
@@ -179,7 +179,7 @@ void CHyperTime::update(int modelOrder,unsigned int* times,float* signal,int len
 			timeDimension+=2;
 		}
 		if (order <  maxOrder) stop = false;
-	}while (stop == false);
+	} while (!stop);
 }
 
 float CHyperTime::estimate(uint32_t t)

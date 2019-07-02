@@ -64,6 +64,9 @@ class CHyperTime: public CTemporal
 		float errors[100];
 		float corrective;
 		int maxTimeDimension;
+
+	private:
+		void reinit_models_if_null();
 };
 
 #endif
