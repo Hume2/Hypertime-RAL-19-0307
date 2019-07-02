@@ -44,11 +44,17 @@ class CFrelement: public CTemporal
 		void update(int maxOrder,unsigned int* times = NULL,float* signal = NULL,int length = 0);
 		void print(bool verbose=true);
 
-		int exportToArray(double* array,int maxLen);
-		int importFromArray(double* array,int len);
 		int save(const char* name,bool lossy = false);
 		int load(const char* name);
 		
+		inline SFrelement* getPredictFrelements() {
+			return predictFrelements;
+		}
+
+	private:
+		int exportToArray(double* array,int maxLen);
+		int importFromArray(double* array,int len);
+
 		float storedGain;
 		SFrelement *storedFrelements;
 		int id;

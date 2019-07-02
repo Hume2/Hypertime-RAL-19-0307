@@ -41,13 +41,15 @@ class CPythonHyperTime: public CTemporal
 		float predict(uint32_t time);
 
 		void update(int maxOrder,unsigned int* times = NULL,float* signal = NULL,int length = 0);
-		int exportToArray(double* array,int maxLen);
-		int importFromArray(double* array,int len);
 		void print(bool verbose=true);
 
 		int save(const char* name,bool lossy = false);
 		int load(const char* name);
 		
+	private:
+		int exportToArray(double* array,int maxLen);
+		int importFromArray(double* array,int len);
+
 		char id[MAX_ID_LENGTH];
 		int measurements;
 

@@ -32,14 +32,16 @@ class CTimeNone: public CTemporal
 		void update(int maxOrder,unsigned int* times = NULL,float* signal = NULL,int length = 0);
 		void print(bool verbose=true);
 
+		int save(const char* name,bool lossy = false);
+		int load(const char* name);
+
+	private:
 		int id;
 		int exportToArray(double* array,int maxLen);
 		int importFromArray(double* array,int len);
 		int save(FILE* file,bool lossy = false);
 		int load(FILE* file);
-		int save(const char* name,bool lossy = false);
-		int load(const char* name);
-		
+
 		float estimation;
 
 };

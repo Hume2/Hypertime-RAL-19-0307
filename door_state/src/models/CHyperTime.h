@@ -47,6 +47,7 @@ class CHyperTime: public CTemporal
 		int save(const  char* name,bool lossy = false);
 		int load(const  char* name);
 		
+	private:
 		SHyperTimeSample sampleArray[1000000];
 		int numSamples;
 		int positives;
