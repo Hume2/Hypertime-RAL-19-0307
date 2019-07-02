@@ -251,24 +251,6 @@ int CHyperTime::load(const char* name)
 	return 0;
 }
 
-int CHyperTime::save(FILE* file,bool lossy)
-{
-//	int frk = numElements;
-//	fwrite(&frk,sizeof(uint32_t),1,file);
-//	fwrite(&storedGain,sizeof(float),1,file);
-//	fwrite(storedFrelements,sizeof(SFrelement),numElements,file);
-	return 0;
-}
-
-int CHyperTime::load(FILE* file)
-{
-//	int frk = numElements;
-//	fwrite(&frk,sizeof(uint32_t),1,file);
-//	fwrite(&storedGain,sizeof(float),1,file);
-//	fwrite(storedFrelements,sizeof(SFrelement),numElements,file);
-	return 0;
-}
-
 /*this is very DIRTY, but I don't see any other way*/
 int CHyperTime::exportToArray(double* array,int maxLen)
 {

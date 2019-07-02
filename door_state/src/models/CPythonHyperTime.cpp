@@ -302,17 +302,6 @@ int CPythonHyperTime::load(const char* name)
 	return 0;
 }
 
-
-int CPythonHyperTime::save(FILE* file,bool lossy)
-{
-	return 0;
-}
-
-int CPythonHyperTime::load(FILE* file)
-{
-	return 0;
-}
-
 int CPythonHyperTime::exportToArray(double* array,int maxLen)
 {
     //import_numpy_stuff();

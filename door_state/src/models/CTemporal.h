@@ -48,8 +48,6 @@ class CTemporal
 
 		virtual int exportToArray(double* array,int maxLen) = 0;
 		virtual int importFromArray(double* array,int len) = 0;
-		virtual int save(FILE* file,bool lossy = false) = 0;
-		virtual int load(FILE* file) = 0;
 		virtual int save(const char* name,bool lossy = false) = 0;
 		virtual int load(const char* name) = 0;
 

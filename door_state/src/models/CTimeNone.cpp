@@ -52,7 +52,7 @@ float CTimeNone::predict(uint32_t time)
 int CTimeNone::save(const char* name,bool lossy)
 {
 	FILE* file = fopen(name,"w");
-	save(file);
+	//Nothing to save
 	fclose(file);
 	return 0;
 }
@@ -60,22 +60,10 @@ int CTimeNone::save(const char* name,bool lossy)
 int CTimeNone::load(const char* name)
 {
 	FILE* file = fopen(name,"r");
-	load(file);
+	//Nothing to load
 	fclose(file);
 	return 0;
 }
-
-
-int CTimeNone::save(FILE* file,bool lossy)
-{
-	return -1;
-}
-
-int CTimeNone::load(FILE* file)
-{
-	return -1;
-}
-
 
 int CTimeNone::exportToArray(double* array,int maxLen)
 {

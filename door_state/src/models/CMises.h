@@ -44,8 +44,6 @@ class CMises: public CTemporal
 
 		int exportToArray(double* array,int maxLen);
 		int importFromArray(double* array,int len);
-		int save(FILE* file,bool lossy = false);
-		int load(FILE* file);
 		int save(const char* name,bool lossy = false);
 		int load(const char* name);
 		

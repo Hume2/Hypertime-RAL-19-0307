@@ -101,7 +101,7 @@ float CTimeAdaptiveHist::predict(uint32_t time)
 int CTimeAdaptiveHist::save(const char* name,bool lossy)
 {
     FILE* file = fopen(name,"w");
-    save(file);
+		//Nothing to save
     fclose(file);
     return 0;
 }
@@ -109,20 +109,9 @@ int CTimeAdaptiveHist::save(const char* name,bool lossy)
 int CTimeAdaptiveHist::load(const char* name)
 {
     FILE* file = fopen(name,"r");
-    load(file);
+		//Nothing to load
     fclose(file);
     return 0;
-}
-
-
-int CTimeAdaptiveHist::save(FILE* file,bool lossy)
-{
-    return -1;
-}
-
-int CTimeAdaptiveHist::load(FILE* file)
-{
-    return -1;
 }
 
 int CTimeAdaptiveHist::exportToArray(double* array,int maxLen)

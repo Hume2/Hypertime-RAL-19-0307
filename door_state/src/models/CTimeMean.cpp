@@ -73,7 +73,7 @@ float CTimeMean::predict(uint32_t time)
 int CTimeMean::save(const char* name,bool lossy)
 {
 	FILE* file = fopen(name,"w");
-	save(file);
+	//Nothing to save
 	fclose(file);
 	return 0;
 }
@@ -81,7 +81,7 @@ int CTimeMean::save(const char* name,bool lossy)
 int CTimeMean::load(const char* name)
 {
 	FILE* file = fopen(name,"r");
-	load(file);
+	//Nothing to load
 	fclose(file);
 	return 0;
 }

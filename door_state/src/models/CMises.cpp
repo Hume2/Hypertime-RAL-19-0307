@@ -130,7 +130,7 @@ float CMises::predict(uint32_t time)
 int CMises::save(const char* name,bool lossy)
 {
 	FILE* file = fopen(name,"w");
-	save(file);
+	//Nothing to save
 	fclose(file);
 	return 0;
 }
@@ -138,27 +138,8 @@ int CMises::save(const char* name,bool lossy)
 int CMises::load(const char* name)
 {
 	FILE* file = fopen(name,"r");
-	load(file);
+	//Nothing to load
 	fclose(file);
-	return 0;
-}
-
-
-int CMises::save(FILE* file,bool lossy)
-{
-//	int frk = numElements;
-//	fwrite(&frk,sizeof(uint32_t),1,file);
-//	fwrite(&storedGain,sizeof(float),1,file);
-//	fwrite(storedFrelements,sizeof(SFrelement),numElements,file);
-	return 0;
-}
-
-int CMises::load(FILE* file)
-{
-//	int frk = numElements;
-//	fwrite(&frk,sizeof(uint32_t),1,file);
-//	fwrite(&storedGain,sizeof(float),1,file);
-//	fwrite(storedFrelements,sizeof(SFrelement),numElements,file);
 	return 0;
 }
 
