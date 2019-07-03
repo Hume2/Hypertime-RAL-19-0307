@@ -105,12 +105,13 @@ void CHyperTime::update(int modelOrder,unsigned int* times,float* signal,int len
 		
 		/*calculate evaluation error*/
 		ofstream ofs;
-		ofs.open("errors_" + std::to_string(timeDimension));
+		ofs.open("predictions_" + std::to_string(timeDimension));
 		for (int i = 0;i<numEvaluation;i++)
 		{
-			err = estimate(sampleArray[i].t)-sampleArray[i].v;
-			ofs << err << std::endl;
+			float prediction = estimate(sampleArray[i].t);
+			err = prediction-sampleArray[i].v;
 			sumErr+=err*err;
+			ofs << prediction << std::endl;
 		}
 		ofs.close();
 		sumErr=sqrt(sumErr/numEvaluation);
