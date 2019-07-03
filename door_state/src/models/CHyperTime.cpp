@@ -1,4 +1,7 @@
 #include "CHyperTime.h"
+#include <fstream>
+#include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -101,11 +104,15 @@ void CHyperTime::update(int modelOrder,unsigned int* times,float* signal,int len
 		corrective = corrective*positives/integral;
 		
 		/*calculate evaluation error*/
+		ofstream ofs;
+		ofs.open("errors_" + std::to_string(timeDimension));
 		for (int i = 0;i<numEvaluation;i++)
 		{
 			err = estimate(sampleArray[i].t)-sampleArray[i].v;
+			ofs << err << std::endl;
 			sumErr+=err*err;
 		}
+		ofs.close();
 		sumErr=sqrt(sumErr/numEvaluation);
 
 		/*retrieve dominant error period*/	
